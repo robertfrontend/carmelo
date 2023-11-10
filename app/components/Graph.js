@@ -61,7 +61,7 @@ const data = {
   ],
 };
 const Graph = () => {
-  const [dataapi, setData] = React.useState(null);
+  const [totaldata, setDataStructure] = React.useState(null);
 
   const newData = [
     {
@@ -117,13 +117,25 @@ const Graph = () => {
   ];
 
   React.useEffect(() => {
-    if (newData.length > 0) getData();
+    getAPI();
   }, []);
 
-  const getData = async () => {
+  const getAPI = async () => {
+    try {
+      const response = await fetch(
+        "https://carmelo-dev.arionkoder.io/config/client_depth"
+      ).then((res) => res.json());
+
+      getData(response);
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
+
+  const getData = async (data) => {
     let structureData = [];
 
-    newData.map((item) => {
+    data.map((item) => {
       structureData.push({
         label: item.client,
         data: [
@@ -141,8 +153,7 @@ const Graph = () => {
       datasets: structureData,
     };
 
-    console.log(dataComplete);
-    setData(dataComplete);
+    setDataStructure(dataComplete);
   };
 
   function generarColorAleatorio() {
@@ -156,7 +167,7 @@ const Graph = () => {
   return (
     <div>
       Carmelo Graph
-      {dataapi !== null && <Bubble options={options} data={dataapi} />}
+      {totaldata !== null && <Bubble options={options} data={totaldata} />}
     </div>
   );
 };
