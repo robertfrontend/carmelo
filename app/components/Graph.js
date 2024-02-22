@@ -14,7 +14,8 @@ ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 const options = {};
 
 const Graph = () => {
-  const [totaldata, setDataStructure] = React.useState(null);
+  const [totaldata, setDataStructure] = React.useState([]);
+  const [copyData, setCopyData] = React.useState([]);
 
   const [dataGraph, setDataGraph] = React.useState([]);
 
@@ -54,6 +55,7 @@ const Graph = () => {
       });
     });
 
+    setCopyData(dataStructure);
     setDataStructure(dataStructure);
   };
 
@@ -64,23 +66,60 @@ const Graph = () => {
   }
 
   const handleSelect = (value, companies) => {
-    const filterCompany = companies.find((company) => company.label === value);
-    filterCompany.add = true;
+    if (value === "all") {
+      setDataGraph([]);
+      setDataStructure([]);
 
-    setDataStructure([...totaldata, filterCompany]);
+      const newCopyData = [];
+      copyData.map((item) => {
+        newCopyData.push({
+          ...item,
+          add: true,
+        });
+      });
 
-    setDataGraph([...dataGraph, filterCompany]);
+      setDataGraph(newCopyData);
+      setDataStructure(newCopyData);
+    } else {
+      const filterCompany = companies.find(
+        (company) => company.label === value
+      );
+      filterCompany.add = true;
+
+      // setDataStructure([...totaldata, filterCompany]);
+      setDataGraph([...dataGraph, filterCompany]);
+    }
+  };
+
+  const handleResetFilter = () => {
+    const newCopyData = [];
+    copyData.map((item) => {
+      newCopyData.push({
+        ...item,
+        add: false,
+      });
+    });
+
+    setDataStructure(newCopyData);
+    setDataGraph([]);
   };
 
   return (
     <section className="sectionGraph">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Carmelo Graph</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Carmelo Graph</h1>
         <FormAddCompany
           totaldata={totaldata}
           handleSelect={handleSelect}
           dataGraph={dataGraph}
+          handleResetFilter={handleResetFilter}
         />
+
+        {dataGraph.length === 0 && (
+          <>
+            <h1 className="text-2xl">To view the graph select a company ✨</h1>
+          </>
+        )}
       </header>
 
       {totaldata !== null && (
@@ -90,7 +129,14 @@ const Graph = () => {
   );
 };
 
-const FormAddCompany = ({ totaldata, handleSelect }) => {
+const FormAddCompany = ({ totaldata, handleSelect, handleResetFilter }) => {
+  const [statusSelect, setStatusSelect] = React.useState(false);
+
+  const handleSelectHTML = (value) => {
+    setStatusSelect(true);
+    handleSelect(value, totaldata);
+  };
+
   return (
     <>
       <div className="custom-select flex justify-center items-center pt-5 mx-auto">
@@ -99,28 +145,31 @@ const FormAddCompany = ({ totaldata, handleSelect }) => {
             <form className="max-w-sm mx-4">
               <select
                 id="countries"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
-                onChange={(e) => handleSelect(e.target.value, totaldata)}
+                className="bg-gray-50 border text-lg border-gray-300 px-10 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+                onChange={(e) => handleSelectHTML(e.target.value, totaldata)}
               >
                 <option selected>Choose a company</option>
+                <option value="all">Add all</option>
                 {totaldata.map((item, index) => (
                   <option key={index} value={item.label} disabled={item.add}>
                     {item.label} {item.add ? "✔️" : ""}
                   </option>
                 ))}
-                <option selected>Add all</option>
               </select>
             </form>
           )}
         </div>
       </div>
       <div className="mt-4">
-        <button
-          type="button"
-          className="text-white mt-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-        >
-          Add companies
-        </button>
+        {statusSelect && (
+          <button
+            type="button"
+            onClick={() => handleResetFilter()}
+            className="text-white mt-2 cursor-pointer bg-gray-500 hover:bg-gray-400 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+          >
+            🧼 Reset filter
+          </button>
+        )}
       </div>
     </>
   );
