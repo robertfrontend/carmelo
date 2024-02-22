@@ -12,118 +12,22 @@ import { Bubble } from "react-chartjs-2";
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 
 const options = {};
-const data = {
-  datasets: [
-    {
-      label: "Martin",
-      data: [
-        {
-          x: 1,
-          y: 1450,
-          r: 10,
-        },
-      ],
-      backgroundColor: "#8A4FFF",
-    },
-    {
-      label: "Arionkoder",
-      data: [
-        {
-          x: 1,
-          y: 1350,
-          r: 10,
-        },
-      ],
-      backgroundColor: "#6DF1C9",
-    },
-    {
-      label: "Pariveda",
-      data: [
-        {
-          x: 2,
-          y: 1400,
-          r: 10,
-        },
-      ],
-      backgroundColor: "#FF1654",
-    },
-    {
-      label: "Toyota",
-      data: [
-        {
-          x: 3,
-          y: 1550,
-          r: 10,
-        },
-      ],
-      backgroundColor: "#FF8540",
-    },
-  ],
-};
+
 const Graph = () => {
   const [totaldata, setDataStructure] = React.useState(null);
 
-  const newData = [
-    {
-      client: "Turnco",
-      depth: 2,
-      revenue: 487449,
-    },
-    {
-      client: "Roostrap",
-      depth: 0,
-      revenue: 212540,
-    },
-    {
-      client: "Pariveda",
-      depth: 0,
-      revenue: 1571682,
-    },
-    {
-      client: "Reptrak",
-      depth: 0,
-      revenue: 407768,
-    },
-    {
-      client: "Arionkoder",
-      depth: 0,
-      revenue: 289569,
-    },
-    {
-      client: "Andela",
-      depth: 0,
-      revenue: 227980,
-    },
-    {
-      client: "iSeatz",
-      depth: 0,
-      revenue: 435353,
-    },
-    {
-      client: "Aspen Grove",
-      depth: 0,
-      revenue: 711560,
-    },
-    {
-      client: "Alliance",
-      depth: 0,
-      revenue: 582468,
-    },
-    {
-      client: "Juango",
-      depth: 0,
-      revenue: 290815,
-    },
-  ];
+  const [dataGraph, setDataGraph] = React.useState([]);
 
   React.useEffect(() => {
     getAPI();
   }, []);
 
   const getAPI = async () => {
+    // "https://carmelo.arionkoder.io/config/client_depth";
+
     try {
       const response = await fetch(
-        "https://carmelo-dev.arionkoder.io/config/client_depth"
+        "https://carmelo.arionkoder.io/config/client_depth"
       ).then((res) => res.json());
 
       getData(response);
@@ -133,42 +37,92 @@ const Graph = () => {
   };
 
   const getData = async (data) => {
-    let structureData = [];
+    let dataStructure = [];
 
     data.map((item) => {
-      structureData.push({
+      dataStructure.push({
         label: item.client,
         data: [
           {
             x: item.depth,
             y: item.revenue,
             r: 10,
+            add: false,
           },
         ],
-        backgroundColor: generarColorAleatorio(),
+        backgroundColor: colorGenerator(),
       });
     });
 
-    const dataComplete = {
-      datasets: structureData,
-    };
-
-    setDataStructure(dataComplete);
+    setDataStructure(dataStructure);
   };
 
-  function generarColorAleatorio() {
-    // Generar un número aleatorio entre 0 y 0xFFFFFF
-    let colorAleatorio = Math.floor(Math.random() * 0xffffff);
+  function colorGenerator() {
+    let randomColor = Math.floor(Math.random() * 0xffffff);
 
-    // Convertir el número a hexadecimal y agregar el símbolo de hash
-    return "#" + colorAleatorio.toString(16).padStart(6, "0");
+    return "#" + randomColor.toString(16).padStart(6, "0");
   }
 
+  const handleSelect = (value, companies) => {
+    const filterCompany = companies.find((company) => company.label === value);
+    filterCompany.add = true;
+
+    setDataStructure([...totaldata, filterCompany]);
+
+    setDataGraph([...dataGraph, filterCompany]);
+  };
+
   return (
-    <div>
-      Carmelo Graph
-      {totaldata !== null && <Bubble options={options} data={totaldata} />}
-    </div>
+    <section className="sectionGraph">
+      <header>
+        <h1 className="text-2xl font-bold text-gray-900">Carmelo Graph</h1>
+        <FormAddCompany
+          totaldata={totaldata}
+          handleSelect={handleSelect}
+          dataGraph={dataGraph}
+        />
+      </header>
+
+      {totaldata !== null && (
+        <Bubble options={options} data={{ datasets: dataGraph }} />
+      )}
+    </section>
+  );
+};
+
+const FormAddCompany = ({ totaldata, handleSelect }) => {
+  return (
+    <>
+      <div className="custom-select flex justify-center items-center pt-5 mx-auto">
+        <div>
+          {totaldata !== null && (
+            <form className="max-w-sm mx-4">
+              <select
+                id="countries"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+                onChange={(e) => handleSelect(e.target.value, totaldata)}
+              >
+                <option selected>Choose a company</option>
+                {totaldata.map((item, index) => (
+                  <option key={index} value={item.label} disabled={item.add}>
+                    {item.label} {item.add ? "✔️" : ""}
+                  </option>
+                ))}
+                <option selected>Add all</option>
+              </select>
+            </form>
+          )}
+        </div>
+      </div>
+      <div className="mt-4">
+        <button
+          type="button"
+          className="text-white mt-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        >
+          Add companies
+        </button>
+      </div>
+    </>
   );
 };
 

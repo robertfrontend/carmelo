@@ -4,7 +4,9 @@ import Graph from "./components/Graph";
 export default function Home() {
   return (
     <main>
-      <Graph />
+      <div className="container">
+        <Graph />
+      </div>
     </main>
   );
 }

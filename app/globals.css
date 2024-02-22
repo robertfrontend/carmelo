@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -11,9 +15,37 @@ body {
 }
 
 body {
+  background-color: white;
+}
+
+.container {
+  margin: 2em;
 }
 
 a {
   color: inherit;
   text-decoration: none;
 }
+
+.sectionGraph header {
+  padding: 2em 0;
+  text-align: center;
+}
+
+.custom-select {
+  width: 400px;
+}
+
+/* .custom-select select {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid #2c3e5042;
+  color: #2c3e50;
+}
+
+.custom-select select:focus {
+  border: 2px solid #2c3e50;
+} */
