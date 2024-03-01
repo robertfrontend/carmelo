@@ -40,7 +40,6 @@ const Graph = () => {
         "https://carmelo.arionkoder.io/config/client_depth"
       ).then((res) => res.json());
 
-      console.log(response, "response data");
       getData(response);
     } catch (error) {
       console.log(error, "error");
