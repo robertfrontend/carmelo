@@ -11,7 +11,16 @@ import { Bubble } from "react-chartjs-2";
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 
-const options = {};
+export const options = {
+  scales: {
+    y: {
+      beginAtZero: true,
+    },
+    x: {
+      beginAtZero: true,
+    },
+  },
+};
 
 const Graph = () => {
   const [totaldata, setDataStructure] = React.useState([]);
@@ -31,6 +40,7 @@ const Graph = () => {
         "https://carmelo.arionkoder.io/config/client_depth"
       ).then((res) => res.json());
 
+      console.log(response, "response data");
       getData(response);
     } catch (error) {
       console.log(error, "error");
@@ -48,7 +58,7 @@ const Graph = () => {
             x: item.depth,
             y: item.revenue,
             r: 10,
-            add: false,
+            add: true,
           },
         ],
         backgroundColor: colorGenerator(),
@@ -86,7 +96,6 @@ const Graph = () => {
       );
       filterCompany.add = true;
 
-      // setDataStructure([...totaldata, filterCompany]);
       setDataGraph([...dataGraph, filterCompany]);
     }
   };
